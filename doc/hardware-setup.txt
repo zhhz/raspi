@@ -1,0 +1,37 @@
+1. Raspberry PI setup
+=======================================================================================================================
+  a. Download the Raspbian Stretch Lit OS
+     https://www.raspberrypi.org/downloads/raspbian/
+  b. Write the image to the memory card with Etcher
+     https://www.balena.io/etcher/
+  c. Setup WiFi without needing to connect a monitor or keyboard to the Pi
+     - create a blank text file named wpa_supplicant.conf
+     - paste following into the file
+        country=us
+        update_config=1
+        ctrl_interface=/var/run/wpa_supplicant
+
+        network={
+         scan_ssid=1
+         ssid="MyNetworkSSID"
+         psk="password"
+        }
+      - double check the SSID and password, both should be sourrounded by quotes
+      - copy to the memory card
+  d. Create empty 'ssh' to auto enable SSH
+      - $touch ssh on the memory card
+  e. connect camera if you have one
+      - then follow the camera setup section
+  f. Connect peripherals and power adapter to power on the Pi
+
+  Warning: Be sure to change the default password if your Pi is on a public access network since we enable ssh
+
+2. Raspberry PI Camera setup
+=======================================================================================================================
+  a. Login as username=pi password=raspberry
+  b. Type: $ sudo raspi-config
+  c. Cursor down to "Interfacing Options" and hit "enter"
+  d. Select "Pi Camera" and hit "enter"
+  e. Select "yes" and "enter" to enable the camera
+  f. Hit enter at the "OK" then "Finish"
+  g. Hit entoty on "yes" to reboot
