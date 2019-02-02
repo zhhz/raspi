@@ -1,0 +1,24 @@
+1. Camera cmd
+=======================================================================================================================
+  Capture videos ( to see the results you have to hookup a local monitor, remote ssh won't show)
+  $ raspivid -t 10000                # run the live camera for 10 seconds
+  $ raspivid -o myvid.h264 -t 10000  # run camera for 10 sec and save to myvid.h264 as output
+  $ raspivid -a 12 -t 10000          # add the date and tiem to the video
+
+  Take images
+  $ raspistill -o mypic.jpg
+
+2. Running Pi camera remotely with netcat (headless)
+=======================================================================================================================
+  a. ssh into the pi
+    $ ssh pi@IP_ADDRESS_OF_PI
+
+  b. open another terminal start mplayer and get ready for input using netcat
+    $ ifconfig | grep inet # get YOUR_MACHINE_IP
+    $ netcat -l -p 5000 | mplayer -fps 60 -cache 2048 –
+
+  c. go back to the pi terminal in a
+    raspivid -t 0 -w 1280 -h 720 -o – | nc YOUR_MACHINE_IP 5000
+
+  d. when finished, shut down the pi gracefully
+    $ sudo showdown now

@@ -1,0 +1,6 @@
+Move socket code to its own file
+Improve performance of preview, maybe try and stream from raspivid
+Timelapse module
+Login 
+Admin view
+Certificates and https

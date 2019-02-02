@@ -35,3 +35,14 @@
   e. Select "yes" and "enter" to enable the camera
   f. Hit enter at the "OK" then "Finish"
   g. Hit entoty on "yes" to reboot
+
+3. Setup static ip
+=======================================================================================================================
+  a. open /etc/dhcpcd.conf
+  b. find following:
+      # Example static IP configuration:
+      #interface eth0
+      #static ip_address=192.168.11.13
+      #static routers=192.168.11.1
+      #static domain_name_servers=8.8.8.8
+  c. Copy above and set to the address of your network
