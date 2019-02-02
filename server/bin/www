@@ -58,9 +58,7 @@ function onError(error) {
 		throw error;
 	}
 
-	var bind = typeof port === 'string'
-		? 'Pipe ' + port
-		: 'Port ' + port;
+	var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port; 
 
 	// handle specific listen errors with friendly messages
 	switch (error.code) {
@@ -83,14 +81,10 @@ function onError(error) {
 
 function onListening() {
 	var addr = server.address();
-	var bind = typeof addr === 'string'
-		? 'pipe ' + addr
-		: 'port ' + addr.port;
+	var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
 	debug('Listening on ' + bind);
 	debug('Ready to rumble!');
 }
-
-// Lanzamos socket.io
 
 
 // TODO: Move this to its own file
@@ -99,8 +93,6 @@ const disconnectedImgLocation = 'public/images/disconnected.jpg';
 var socket = require('socket.io')(server);
 const { spawn } = require('child_process');
 var fs = require('fs');
-// import * as Socket from 'socket.io';
-// import * as fs from 'fs';
 
 const milisecondsInterval = 75;
 let clients = new Map();
@@ -109,7 +101,6 @@ let connectedClients = new Map();
 let raspistill; // the child process we will launch to generate images
 
 let lastImg;
-let setIntervalID;
 
 let lastBuffer;
 let splitImage = (buffer, sendCallback) => {
@@ -162,9 +153,7 @@ let disconnectFromStream = (sock) => {
 		console.log('No more clients, killing proccess...');
 		if (raspistill) raspistill.kill();
 		raspistill = undefined;
-		clearInterval(setIntervalID);
 		buffer = undefined;
-		console.log('He dead.');
 	} else {
 		console.log('Remaining connected clients ' + connectedClients);
 	}
@@ -210,7 +199,6 @@ socket.on('connection', (sock/*: SocketIO.Socket*/) => {
 			raspistill.stdout.on('data', (data) => {
 
 				// Directly converting the data causes us to send an incomplete image. We have to check for a full image. And then send it.
-
 				// Since there is more than one image per stdout we delegate the process to a function
 				let lImg = splitImage(data, (img) => {
 					connectedClients.forEach((client) => {
@@ -224,7 +212,7 @@ socket.on('connection', (sock/*: SocketIO.Socket*/) => {
 			});
 
 			raspistill.stdout.on('end', function (data) {
-				console.log('Wow. Raspistill ended... we should it launch again.');
+				console.log(' =>  =>  Raspistill ended...');
 			});
 
 		}
