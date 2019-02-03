@@ -35,8 +35,3 @@ function changeElements(start) {
   stopBtn.style.visibility = stopVisibilty;
   infoMsg.style.visibility = startVisibility;
 }
-
-window.onload = (event) => {
-  let timelapseBtn = document.getElementById("timelapse");
-  timelapseBtn.disabled = true;
-};
