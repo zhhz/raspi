@@ -1,7 +1,4 @@
-import socketIOClient from "socket.io-client";
-
-const endpoint = "http://127.0.0.1:3000";
-const socket = socketIOClient(endpoint);
+let socket = io();
 
 socket.on('liveStream', function (data) {
   let img = document.getElementById("stream");
@@ -39,4 +36,4 @@ function changeElements(start) {
 window.onload = (event) => {
   let timelapseBtn = document.getElementById("timelapse");
   timelapseBtn.disabled = true;
-};
+};;
