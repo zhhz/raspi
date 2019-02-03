@@ -1,6 +1,6 @@
 import socketIOClient from "socket.io-client";
 
-const endpoint = "http://127.0.0.1:3000";
+const endpoint = "http://192.168.1.232:3000";
 const socket = socketIOClient(endpoint);
 
 socket.on('liveStream', function (data) {
