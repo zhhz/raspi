@@ -8,9 +8,13 @@ import Home from './views/Home';
 import LiveCam from './views/LiveCam';
 import Settings from './views/Settings';
 
-import './components/socket';
+import socket from './components/socket';
 
 class App extends Component {
+
+  handleStart = () => {
+    socket.emit('start-stream');
+  }
 
   render() {
     return (
@@ -23,6 +27,7 @@ class App extends Component {
         </Switch>
         <img id="stream" alt="stream"></img>
         <div id="infoMsg"></div>
+        <button onClick={this.handleStart}>Start</button>
     </div>
     );
   }

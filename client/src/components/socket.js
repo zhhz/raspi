@@ -35,3 +35,5 @@ function changeElements(start) {
   stopBtn.style.visibility = stopVisibilty;
   infoMsg.style.visibility = startVisibility;
 }
+
+export default socket;
