@@ -1,98 +1,9 @@
-#!/usr/bin/env node
-
-/**
- * Module dependencies.
- */
-
-var app = require('../app');
-var debug = require('debug')('picamserver:server');
-var http = require('http');
-
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-	var port = parseInt(val, 10);
-
-	if (isNaN(port)) {
-		// named pipe
-		return val;
-	}
-
-	if (port >= 0) {
-		// port number
-		return port;
-	}
-
-	return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-	if (error.syscall !== 'listen') {
-		throw error;
-	}
-
-	var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port; 
-
-	// handle specific listen errors with friendly messages
-	switch (error.code) {
-		case 'EACCES':
-			console.error(bind + ' requires elevated privileges');
-			process.exit(1);
-			break;
-		case 'EADDRINUSE':
-			console.error(bind + ' is already in use');
-			process.exit(1);
-			break;
-		default:
-			throw error;
-	}
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-	var addr = server.address();
-	var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-	debug('Listening on ' + bind);
-	debug('Ready to rumble!');
-}
-
-
-// TODO: Move this to its own file
-
-const disconnectedImgLocation = 'public/images/disconnected.jpg';
+var server = require('./server');
 var socket = require('socket.io')(server);
 const { spawn } = require('child_process');
 var fs = require('fs');
+
+const disconnectedImgLocation = 'public/images/disconnected.jpg';
 
 const milisecondsInterval = 75;
 let clients = new Map();
@@ -169,7 +80,7 @@ socket.on('connection', (sock/*: SocketIO.Socket*/) => {
 	sock.emit('connected');
 
 	sock.on('disconnect', () => {
-		console.log('Disconnect (socket) from client ' + address);
+		console.log('Disconnected from client ' + address);
 		clients.delete(sock.id);
 		disconnectFromStream(sock);
 	});
@@ -180,7 +91,7 @@ socket.on('connection', (sock/*: SocketIO.Socket*/) => {
 	});
 
 	sock.on('start-stream', () => {
-		console.log('Plz stream...');
+		console.log(' =>  => start streaming...');
 		connectedClients.set(sock.id, sock);
 		// app.set('watchingFile', true);
 
@@ -208,13 +119,11 @@ socket.on('connection', (sock/*: SocketIO.Socket*/) => {
 				if (lImg){
 					lastImg = 'data:image/jpg;base64,' + lImg.toString('base64');
 				}
-
 			});
 
 			raspistill.stdout.on('end', function (data) {
 				console.log(' =>  =>  Raspistill ended...');
 			});
-
 		}
 	});
 });
