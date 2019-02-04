@@ -29,8 +29,8 @@ const styles = theme => ({
     width: "100%",
   },
   media: {
-    height: 0,
-    paddingTop: '56.25%', // 16:9
+    // height: 0,
+    // paddingTop: '56.25%', // 16:9
   },
   actions: {
     display: 'flex',
@@ -51,14 +51,17 @@ const styles = theme => ({
 });
 
 class ImageViewer extends React.Component {
-  state = { expanded: false };
+  state = {
+    expanded: false,
+    image: '/images/disconnected.jpg',
+  };
 
   handleExpandClick = () => {
     this.setState(state => ({ expanded: !state.expanded }));
   };
 
   componentDidMount() {
-    console.log(' =>  => mounted');
+    // this.socket = new Socket('http://localhost:3000') // localhost
     this.socket = new Socket('http://192.168.1.232:3000') // PI 3
     // this.socket = new Socket('http://192.168.1.233:3000') /// PI 0
 
@@ -70,10 +73,13 @@ class ImageViewer extends React.Component {
 
   onLiveStream = data => {
     console.log(' =>  => stream: ', data);
-    let img = document.getElementById("stream");
-    let srcAttr = document.createAttribute("src");
-    srcAttr.value = data;
-    img.attributes.setNamedItem(srcAttr);
+    // let img = document.getElementById("stream");
+    // let srcAttr = document.createAttribute("src");
+    // srcAttr.value = data;
+    // img.attributes.setNamedItem(srcAttr);
+    this.setState({
+      image: data,
+    });
   }
 
   onConnected = data => {
@@ -113,7 +119,8 @@ class ImageViewer extends React.Component {
         />
         <CardMedia
           className={classes.media}
-          image="/images/disconnected.jpg"
+          component='img'
+          src={this.state.image}
           title="preview"
         />
         <CardContent>
