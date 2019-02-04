@@ -1,36 +1,45 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
-import { Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 
-import './App.css';
+import { withStyles } from '@material-ui/core/styles';
+
 import Header from "./layout/Header";
 import Home from './views/Home';
 import LiveCam from './views/LiveCam';
 import Settings from './views/Settings';
 
-import socket from './components/socket';
+
+const styles = theme => ({
+  root: {
+    display: 'flex',
+  },
+});
 
 class App extends Component {
 
-  handleStart = () => {
-    socket.emit('start-stream');
-  }
-
   render() {
+    const { classes } = this.props;
     return (
-      <div className="App">
-        <Header />
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route path="/livecam" component={LiveCam} />  
-          <Route path="/settings" component={Settings} />
-        </Switch>
-        <img id="stream" alt="stream"></img>
-        <div id="infoMsg"></div>
-        <button onClick={this.handleStart}>Start</button>
-    </div>
+      <div className={classes.root}>
+        <BrowserRouter>
+          <Route
+            path="/"
+            render={({ location }) => (
+              <Fragment>
+                <Header location={location}/>
+                <Switch>
+                  <Route exact path="/" component={Home} />
+                  <Route path="/livecam" component={LiveCam} />  
+                  <Route path="/settings" component={Settings} />
+                </Switch>
+              </Fragment>
+            )}
+          />
+        </BrowserRouter>
+      </div>
     );
   }
 }
 
-export default App;
+export default withStyles(styles)(App);

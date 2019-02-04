@@ -1,0 +1,27 @@
+1. identify what hardware you have:
+  $ uname -m
+  If the result returned starts with “armv6”, you are running a Raspberry Pi based on the
+  older ARMv6 chipset 
+  Otherwise, ARMv7 or ARMv8
+
+2. ARMV6 - Pi Zero, Pi B / B+
+  Do NOT try to compile from source, it is really really really slow...
+
+  a. find a list of distributions
+    https://nodejs.org/dist/
+    NOTE: you have to find for armv6l architecture
+  b. $ curl -o node-v11.9.0-linux-armv6l.tar.gz https://nodejs.org/dist/latest/node-v11.9.0-linux-armv6l.tar.gz
+  c. $ tar -xzf node-v11.9.0-linux-armv6l.tar.gz
+  d. $ sudo cp -r node-v11.9.0-linux-armv6l/* /usr/local/
+  e. verify
+    $ node -v
+    $ npm -v
+
+3. ARMV7/8 - Pi 2 / 3
+  updates our Debian apt package repository to include the NodeSource packages
+  $ curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
+
+  install Node.js
+  $ sudo apt install -y nodejs
+
+  $ node -v

@@ -18,6 +18,9 @@
         }
       - double check the SSID and password, both should be sourrounded by quotes
       - copy to the memory card
+      NOTE[Sun Feb  3 17:59:54 2019]: 
+        !!!!! The Pi 0 W wifi only uses 2.4GHz so will not connect to 5GHz wifi network.
+
   d. Create empty 'ssh' to auto enable SSH
       - $touch ssh on the memory card
   e. connect camera if you have one

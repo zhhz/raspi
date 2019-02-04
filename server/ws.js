@@ -70,14 +70,14 @@ let disconnectFromStream = (sock) => {
 	}
 };
 
-socket.on('connection', (sock/*: SocketIO.Socket*/) => {
+socket.on('connection', sock => {
 
 	clients.set(sock.id, sock);
 
 	let address = sock.handshake.address;
 	console.log('New connection from ' + address);
 
-	sock.emit('connected');
+	sock.emit('connected', 'This is from the server');
 
 	sock.on('disconnect', () => {
 		console.log('Disconnected from client ' + address);
@@ -100,7 +100,8 @@ socket.on('connection', (sock/*: SocketIO.Socket*/) => {
 
 		if (!raspistill) {
 			console.log('No raspistill found, spawning one.');
-			let args = ['-w', '640', '-h', '480', '-o', '-', '-q', '80', '-t', '999999999', '-tl', milisecondsInterval.toString(), '--thumb', 'none'];
+      // let args = ['-w', '640', '-h', '480', '-o', '-', '-q', '80', '-t', '999999999', '-tl', milisecondsInterval.toString(), '--thumb', 'none'];
+			let args = ['-w', '640', '-h', '480', '-o', '-', '-q', '80', '-t', '999999999', '--thumb', 'none'];
 
 			raspistill = spawn('raspistill', args);
 			raspistill.on('error', (err) => {
@@ -108,7 +109,6 @@ socket.on('connection', (sock/*: SocketIO.Socket*/) => {
 				console.warn(err);
 			});
 			raspistill.stdout.on('data', (data) => {
-
 				// Directly converting the data causes us to send an incomplete image. We have to check for a full image. And then send it.
 				// Since there is more than one image per stdout we delegate the process to a function
 				let lImg = splitImage(data, (img) => {
