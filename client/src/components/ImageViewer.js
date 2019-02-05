@@ -61,14 +61,16 @@ class ImageViewer extends React.Component {
   };
 
   componentDidMount() {
-    // this.socket = new Socket('http://localhost:3000') // localhost
-    this.socket = new Socket('http://192.168.1.232:3000') // PI 3
+    this.socket = new Socket('http://localhost:3000') // localhost
+    // this.socket = new Socket('http://192.168.1.232:3000') // PI 3
     // this.socket = new Socket('http://192.168.1.233:3000') /// PI 0
 
     this.socket.init({
       onConnected: this.onConnected,
       onLiveStream: this.onLiveStream,
     });
+
+
   }
 
   onLiveStream = data => {
@@ -86,8 +88,8 @@ class ImageViewer extends React.Component {
     console.log(' =>  => connected: ', data);
   }
 
-  takeSnapshot = () => {
-    this.socket.startStream();
+  takePhoto = () => {
+    this.socket.takePhoto();
   }
 
   render() {
@@ -103,7 +105,7 @@ class ImageViewer extends React.Component {
           }
           action={
             <Toolbar>
-              <IconButton onClick={this.takeSnapshot}>
+              <IconButton onClick={this.takePhoto}>
                 <PhotoCameraIcon />
               </IconButton>
               <IconButton>

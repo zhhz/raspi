@@ -12,15 +12,15 @@ class Socket {
     this.socket = socketIOClient(this.address || this._default_ws_address);
 
     this.socket.on('connected', opts.onConnected);
-    this.socket.on('liveStream', opts.onLiveStream);
+    this.socket.on('photo', opts.onLiveStream);
   }
 
-  startStream() {
-    this.socket.emit('start-stream');
+  takePhoto() {
+    this.socket.emit('take-photo');
   }
 
-  stopStream() {
-    this.socket.emit('disconnect-client');
+  forceQuit() {
+    this.socket.emit('disconnect-photo');
   }
 
 }
