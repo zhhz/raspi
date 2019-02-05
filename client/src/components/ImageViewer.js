@@ -13,7 +13,10 @@ import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 import green from '@material-ui/core/colors/green';
+
 import ShareIcon from '@material-ui/icons/Share';
 
 import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
@@ -54,6 +57,7 @@ class ImageViewer extends React.Component {
   state = {
     expanded: false,
     image: '/images/disconnected.jpg',
+    status: 'done',
   };
 
   handleExpandClick = () => {
@@ -61,26 +65,13 @@ class ImageViewer extends React.Component {
   };
 
   componentDidMount() {
-    this.socket = new Socket('http://localhost:3000') // localhost
-    // this.socket = new Socket('http://192.168.1.232:3000') // PI 3
+    // this.socket = new Socket('http://localhost:3000') // localhost
+    this.socket = new Socket('http://192.168.1.232:3000') // PI 3
     // this.socket = new Socket('http://192.168.1.233:3000') /// PI 0
 
     this.socket.init({
       onConnected: this.onConnected,
-      onLiveStream: this.onLiveStream,
-    });
-
-
-  }
-
-  onLiveStream = data => {
-    console.log(' =>  => stream: ', data);
-    // let img = document.getElementById("stream");
-    // let srcAttr = document.createAttribute("src");
-    // srcAttr.value = data;
-    // img.attributes.setNamedItem(srcAttr);
-    this.setState({
-      image: data,
+      onPhotoReady: this.onPhotoReady,
     });
   }
 
@@ -88,12 +79,24 @@ class ImageViewer extends React.Component {
     console.log(' =>  => connected: ', data);
   }
 
+  onPhotoReady = data => {
+    this.setState({
+      image: data,
+      status:'done',
+    });
+  }
+
   takePhoto = () => {
+    this.setState({
+      status: 'taking-photo',
+    });
+
     this.socket.takePhoto();
   }
 
   render() {
     const { classes } = this.props;
+    const { status, image } = this.state;
 
     return (
       <Card className={classes.card}>
@@ -105,11 +108,8 @@ class ImageViewer extends React.Component {
           }
           action={
             <Toolbar>
-              <IconButton onClick={this.takePhoto}>
+              <IconButton onClick={this.takePhoto} disabled={status === 'taking-photo'}>
                 <PhotoCameraIcon />
-              </IconButton>
-              <IconButton>
-                <MoreVertIcon />
               </IconButton>
               <IconButton>
                 <MoreVertIcon />
@@ -119,12 +119,16 @@ class ImageViewer extends React.Component {
           title="Connected to server"
           subheader="September 14, 2016"
         />
-        <CardMedia
-          className={classes.media}
-          component='img'
-          src={this.state.image}
-          title="preview"
-        />
+        {
+          status === 'taking-photo' ?
+            <CircularProgress />
+            : <CardMedia
+              className={classes.media}
+              component='img'
+              src={image}
+              title="preview"
+            />
+        }
         <CardContent>
           <Typography component="p">
             Click to capture the photo

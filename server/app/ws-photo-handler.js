@@ -23,9 +23,9 @@ function onTakePhoto(socket) {
     raspistill.stdout.on('data', (data) => {
       // Directly converting the data causes us to send an incomplete image. We have to check for a full image. And then send it.
       // Since there is more than one image per stdout we delegate the process to a function
-      let lImg = splitImage(data, (img) => {
+      let lImg = splitImage(data, img => {
         photoClients.forEach((client) => {
-          client.emit('liveStream', 'data:image/jpg;base64,' + img.toString('base64'));
+          client.emit('photo-ready', 'data:image/jpg;base64,' + img.toString('base64'));
         });
       });
     });

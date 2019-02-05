@@ -12,7 +12,7 @@ class Socket {
     this.socket = socketIOClient(this.address || this._default_ws_address);
 
     this.socket.on('connected', opts.onConnected);
-    this.socket.on('photo', opts.onLiveStream);
+    this.socket.on('photo-ready', opts.onPhotoReady);
   }
 
   takePhoto() {
