@@ -22,7 +22,6 @@ import ShareIcon from '@material-ui/icons/Share';
 
 import CameraIcon from '@material-ui/icons/Camera';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import TvOffIcon from '@material-ui/icons/TvOff';
 import LinkIcon from '@material-ui/icons/Link';
 import LinkOffIcon from '@material-ui/icons/LinkOff';
@@ -66,7 +65,7 @@ const styles = theme => ({
 class ImageViewer extends React.Component {
   state = {
     expanded: false,
-    image: '/images/disconnected.jpg',
+    image: null,
     serverName: 'Not connected',
     connected: false,
     status: 'done',
@@ -98,7 +97,7 @@ class ImageViewer extends React.Component {
   onPhotoReady = data => {
     this.setState({
       image: data,
-      status:'done',
+      status:'success',
     });
   }
 
@@ -120,7 +119,7 @@ class ImageViewer extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { connected, status, serverName, ts, image } = this.state;
+    const { connected, status, serverName, ts } = this.state;
 
     return (
       <Card className={classes.card}>
@@ -135,7 +134,7 @@ class ImageViewer extends React.Component {
               <IconButton onClick={this.takePhoto} disabled={status === 'taking-photo'}>
                 <CameraIcon />
               </IconButton>
-              <IconButton onClick={this.disconnectPhoto} disabled={status !== 'taking-photo'}>
+              <IconButton onClick={this.cancelPhoto} disabled={status !== 'taking-photo'}>
                 <TvOffIcon />
               </IconButton>
             </Toolbar>
@@ -143,19 +142,10 @@ class ImageViewer extends React.Component {
           title={serverName}
           subheader={ts}
         />
-        {
-          status === 'taking-photo' ?
-            <CircularProgress className={classes.progress} size={80}/>
-            : <CardMedia
-              className={classes.media}
-              component='img'
-              src={image}
-              title="preview"
-            />
-        }
+        { this._getCardMedia() }
         <CardContent>
           <Typography component="p">
-            Click to capture the photo
+            About this photo:
           </Typography>
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
@@ -197,6 +187,37 @@ class ImageViewer extends React.Component {
         </Collapse>
       </Card>
     );
+  }
+
+  _getCardMedia() {
+    const { classes } = this.props;
+    const {status, image} = this.state;
+
+    let media;
+    switch(status) {
+      case 'taking-photo':
+        media = <CircularProgress className={classes.progress} size={40}/>;
+        break;
+      case 'success':
+        media = <CardMedia
+          className={classes.media}
+          component='img'
+          src={image}
+          title="preview"
+        />;
+        break;
+      case 'canceled':
+        media = <CardContent>
+          <Typography component="p"> Canceled </Typography>
+        </CardContent>;
+        break;
+      default:
+        media = <CardContent>
+          <Typography component="p">Click on Camera icon to capture the photo</Typography>
+        </CardContent>;
+    }
+
+    return media;
   }
 }
 
