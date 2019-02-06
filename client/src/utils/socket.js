@@ -19,8 +19,8 @@ class Socket {
     this.socket.emit('take-photo');
   }
 
-  forceQuit() {
-    this.socket.emit('disconnect-photo');
+  cancelPhoto() {
+    this.socket.emit('cancel-photo');
   }
 
 }

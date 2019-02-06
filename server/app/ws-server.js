@@ -16,7 +16,7 @@ socket.on('connection', sock => {
     console.log('Disconnected from client ' + address);
     clients.delete(sock.id);
 
-    wsPhotoHandler.disconnect(sock);
+    wsPhotoHandler.cleanup(sock);
   });
 
   sock.on('take-photo', () => wsPhotoHandler.onTakePhoto(sock));

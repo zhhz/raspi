@@ -16,16 +16,20 @@ import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import green from '@material-ui/core/colors/green';
+import red from '@material-ui/core/colors/red';
 
 import ShareIcon from '@material-ui/icons/Share';
 
-import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
+import CameraIcon from '@material-ui/icons/Camera';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import CloudIcon from '@material-ui/icons/Cloud';
+import TvOffIcon from '@material-ui/icons/TvOff';
+import LinkIcon from '@material-ui/icons/Link';
+import LinkOffIcon from '@material-ui/icons/LinkOff';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 
 import Socket from '../utils/socket';
+import DateUtil from '../utils/date-time';
 
 const styles = theme => ({
   card: {
@@ -48,8 +52,14 @@ const styles = theme => ({
   expandOpen: {
     transform: 'rotate(180deg)',
   },
-  avatar: {
+  avatarLink: {
     backgroundColor: green[500],
+  },
+  avatarLinkOff: {
+    backgroundColor: red[500],
+  },
+  progress: {
+    margin: theme.spacing.unit * 2,
   },
 });
 
@@ -57,6 +67,8 @@ class ImageViewer extends React.Component {
   state = {
     expanded: false,
     image: '/images/disconnected.jpg',
+    serverName: 'Not connected',
+    connected: false,
     status: 'done',
   };
 
@@ -76,7 +88,11 @@ class ImageViewer extends React.Component {
   }
 
   onConnected = data => {
-    console.log(' =>  => connected: ', data);
+    this.setState({
+      connected: true,
+      serverName: data,
+      ts: DateUtil.now(),
+    });
   }
 
   onPhotoReady = data => {
@@ -94,34 +110,42 @@ class ImageViewer extends React.Component {
     this.socket.takePhoto();
   }
 
+  cancelPhoto = () => {
+    this.setState({
+      status: 'canceled',
+    });
+
+    this.socket.cancelPhoto();
+  }
+
   render() {
     const { classes } = this.props;
-    const { status, image } = this.state;
+    const { connected, status, serverName, ts, image } = this.state;
 
     return (
       <Card className={classes.card}>
         <CardHeader
           avatar={
-            <Avatar aria-label="Connected" className={classes.avatar}>
-              <CloudIcon />
+            <Avatar aria-label="Connected" className={connected ? classes.avatarLink : classes.avatarLinkOff}>
+              {connected ? <LinkIcon /> : <LinkOffIcon />}
             </Avatar>
           }
           action={
             <Toolbar>
               <IconButton onClick={this.takePhoto} disabled={status === 'taking-photo'}>
-                <PhotoCameraIcon />
+                <CameraIcon />
               </IconButton>
-              <IconButton>
-                <MoreVertIcon />
+              <IconButton onClick={this.disconnectPhoto} disabled={status !== 'taking-photo'}>
+                <TvOffIcon />
               </IconButton>
             </Toolbar>
           }
-          title="Connected to server"
-          subheader="September 14, 2016"
+          title={serverName}
+          subheader={ts}
         />
         {
           status === 'taking-photo' ?
-            <CircularProgress />
+            <CircularProgress className={classes.progress} size={80}/>
             : <CardMedia
               className={classes.media}
               component='img'

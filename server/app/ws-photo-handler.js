@@ -32,20 +32,20 @@ function onTakePhoto(socket) {
 
     raspistill.stdout.on('end', function (data) {
       console.log(' =>  =>  Raspistill ended...');
-      disconnect(socket);
+      cleanup(socket);
     });
   } else {
     // Send connected client the current image
     console.log(' =>  => second client is asking to take a photo')
   }
 
-  socket.on('disconnect-photo', () => {
-    console.log(' =>  => Client canceled connection: ' + address);
-    disconnect(socket);
+  socket.on('cancel-photo', () => {
+    console.log(' =>  => Client canceled take the photo');
+    cleanup(socket);
   });
 }
 
-function disconnect(socket) {
+function cleanup(socket) {
   photoClients.delete(socket.id);
 
   if (photoClients.size === 0) {
@@ -97,7 +97,7 @@ function splitImage(buffer, sendCallback) {
 
 const wsPhotoHandler = {
   onTakePhoto,
-  disconnect,
+  cleanup,
 }
 
 module.exports = wsPhotoHandler;
