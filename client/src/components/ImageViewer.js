@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles';
@@ -62,13 +62,13 @@ const styles = theme => ({
   },
 });
 
-class ImageViewer extends React.Component {
+class ImageViewer extends Component {
   state = {
     expanded: false,
     image: null,
     serverName: 'Not connected',
     connected: false,
-    status: 'done',
+    status: '',
   };
 
   handleExpandClick = () => {
@@ -144,9 +144,7 @@ class ImageViewer extends React.Component {
         />
         { this._getCardMedia() }
         <CardContent>
-          <Typography component="p">
-            About this photo:
-          </Typography>
+          { this._getCardContent() }
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
           <IconButton aria-label="Add to favorites">
@@ -218,6 +216,11 @@ class ImageViewer extends React.Component {
     }
 
     return media;
+  }
+
+  _getCardContent() {
+    const {status} = this.state;
+    return 'success' === status ? <Typography component="p">About this photo</Typography> : <Fragment />;
   }
 }
 
