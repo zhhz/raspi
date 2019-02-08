@@ -77,7 +77,7 @@ class ImageViewer extends Component {
 
   componentDidMount() {
     // this.socket = new Socket('http://localhost:3000') // localhost
-    this.socket = new Socket('http://192.168.1.232:3000') // PI 3
+    this.socket = new Socket('http://192.168.1.233:3000') // PI 3
     // this.socket = new Socket('http://192.168.1.233:3000') /// PI 0
 
     this.socket.init({

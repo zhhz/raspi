@@ -1,6 +1,6 @@
-Move socket code to its own file
-Improve performance of preview, maybe try and stream from raspivid
-Timelapse module
-Login 
-Admin view
-Certificates and https
+[Tue Feb  5 21:39:05 2019] [UI/UX] setting page to config the photo/video server
+
+[Tue Feb  5 21:38:24 2019] Improve performance of preview, maybe try and stream from raspivid
+[Tue Feb  5 21:38:31 2019] Timelapse module
+
+[DONE Thu Feb  7 20:44:45 2019][Tue Feb  5 21:38:38 2019] [SERVER] on connected, return the server ip / hostname
