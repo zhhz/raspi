@@ -13,22 +13,23 @@ import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 import green from '@material-ui/core/colors/green';
 import red from '@material-ui/core/colors/red';
 
 import ShareIcon from '@material-ui/icons/Share';
 
-import CameraIcon from '@material-ui/icons/Camera';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import TvOffIcon from '@material-ui/icons/TvOff';
+import StopIcon from '@material-ui/icons/NotInterested';
 import LinkIcon from '@material-ui/icons/Link';
 import LinkOffIcon from '@material-ui/icons/LinkOff';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import SaveIcon from '@material-ui/icons/Save';
+import CameraIcon from '@material-ui/icons/Camera';
 
 import Socket from '../utils/socket';
 import DateUtil from '../utils/date-time';
+import ProgressButton from './ProgressButton';
 
 const styles = theme => ({
   card: {
@@ -57,9 +58,6 @@ const styles = theme => ({
   avatarLinkOff: {
     backgroundColor: red[500],
   },
-  progress: {
-    margin: theme.spacing.unit * 2,
-  },
 });
 
 class ImageViewer extends Component {
@@ -68,7 +66,8 @@ class ImageViewer extends Component {
     image: null,
     serverName: 'Not connected',
     connected: false,
-    status: '',
+    loading: false,
+    success: false,
   };
 
   handleExpandClick = () => {
@@ -77,8 +76,8 @@ class ImageViewer extends Component {
 
   componentDidMount() {
     // this.socket = new Socket('http://localhost:3000') // localhost
-    this.socket = new Socket('http://192.168.1.233:3000') // PI 3
-    // this.socket = new Socket('http://192.168.1.233:3000') /// PI 0
+    // this.socket = new Socket('http://192.168.1.232:3000') // PI 3
+    this.socket = new Socket('http://192.168.1.233:3000') /// PI 0
 
     this.socket.init({
       onConnected: this.onConnected,
@@ -97,13 +96,15 @@ class ImageViewer extends Component {
   onPhotoReady = data => {
     this.setState({
       image: data,
-      status:'success',
+      loading: false,
+      success: true,
     });
   }
 
   takePhoto = () => {
     this.setState({
-      status: 'taking-photo',
+      loading: true,
+      success: false,
     });
 
     this.socket.takePhoto();
@@ -111,7 +112,8 @@ class ImageViewer extends Component {
 
   cancelPhoto = () => {
     this.setState({
-      status: 'canceled',
+      loading: false,
+      success: false,
     });
 
     this.socket.cancelPhoto();
@@ -119,7 +121,7 @@ class ImageViewer extends Component {
 
   render() {
     const { classes } = this.props;
-    const { connected, status, serverName, ts } = this.state;
+    const { connected, loading, success, serverName, ts } = this.state;
 
     return (
       <Card className={classes.card}>
@@ -131,11 +133,18 @@ class ImageViewer extends Component {
           }
           action={
             <Toolbar>
-              <IconButton onClick={this.takePhoto} disabled={status === 'taking-photo'}>
-                <CameraIcon />
+              <ProgressButton
+                handleClick={this.takePhoto}
+                icon={CameraIcon}
+                loading={loading}
+                success={success}
+                disabled={!connected}
+              />
+              <IconButton onClick={this.cancelPhoto} disabled={!loading}>
+                <StopIcon />
               </IconButton>
-              <IconButton onClick={this.cancelPhoto} disabled={status !== 'taking-photo'}>
-                <TvOffIcon />
+              <IconButton onClick={this.savePhoto} disabled={!success}>
+                <SaveIcon />
               </IconButton>
             </Toolbar>
           }
@@ -189,33 +198,25 @@ class ImageViewer extends Component {
 
   _getCardMedia() {
     const { classes } = this.props;
-    const {status, image} = this.state;
+    const {loading, image} = this.state;
 
-    let media;
-    switch(status) {
-      case 'taking-photo':
-        media = <CircularProgress className={classes.progress} size={40}/>;
-        break;
-      case 'success':
-        media = <CardMedia
-          className={classes.media}
-          component='img'
-          src={image}
-          title="preview"
-        />;
-        break;
-      case 'canceled':
-        media = <CardContent>
-          <Typography component="p"> Canceled </Typography>
-        </CardContent>;
-        break;
-      default:
-        media = <CardContent>
-          <Typography component="p">Click on Camera icon to capture the photo</Typography>
-        </CardContent>;
+    if(!image) {
+      return  <CardContent>
+        <Typography component="p">Click on Camera icon to capture the photo</Typography>
+      </CardContent>;
     }
 
-    return media;
+    return  <CardMedia
+      className={classes.media}
+      component='img'
+      src={image}
+      title="preview"
+    />;
+    /*
+    <CardContent>
+      <Typography component="p"> Canceled </Typography>
+    </CardContent>;
+    */
   }
 
   _getCardContent() {
