@@ -2,7 +2,7 @@
 My play ground with Raspberry PI and sensors.
 
 
-## Installation:
+## Installation - server (on a raspberry pi / 0):
 
 ### Change into the directory
 
@@ -22,7 +22,26 @@ npm install
 npm start
 ```
 
-Now just point your browser of choice to your raspberry's ip (or localhost) at port 3000. 
+## Installation - client:
+
+### Change into the directory
+
+```shell
+cd client
+```
+
+### Install dependencies
+
+```shell
+npm install
+```
+
+### Run the server
+
+```shell
+npm start
+```
+Now just point your browser of choice to localhost at port 3000.
 
 ```shell
 http://localhost:3000
