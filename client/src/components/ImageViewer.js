@@ -61,27 +61,32 @@ const styles = theme => ({
 });
 
 class ImageViewer extends Component {
-  state = {
-    expanded: false,
-    image: null,
-    serverName: 'Not connected',
-    connected: false,
-    loading: false,
-    success: false,
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      expanded: false,
+      image: null,
+
+      serverName: 'Not Connected',
+      camPhotoServer: props.camPhotoServer,
+      connected: false,
+      loading: false,
+      success: false,
+    };
+  }
 
   handleExpandClick = () => {
     this.setState(state => ({ expanded: !state.expanded }));
   };
 
   componentDidMount() {
-    // this.socket = new Socket('http://localhost:3000') // localhost
-    // this.socket = new Socket('http://192.168.1.232:3000') // PI 3
-    this.socket = new Socket('http://192.168.1.233:3000') /// PI 0
+    if(!this.state.camPhotoServer) return;
 
+    this.socket = new Socket(this.state.camPhotoServer);
     this.socket.init({
       onConnected: this.onConnected,
-      onPhotoReady: this.onPhotoReady,
+    onPhotoReady: this.onPhotoReady,
     });
   }
 
@@ -129,7 +134,7 @@ class ImageViewer extends Component {
 
   render() {
     const { classes } = this.props;
-    const { connected, loading, success, serverName, ts } = this.state;
+    const { camPhotoServer, connected, loading, success, serverName, ts } = this.state;
 
     return (
       <Card className={classes.card}>
@@ -157,7 +162,7 @@ class ImageViewer extends Component {
             </Toolbar>
           }
           title={serverName}
-          subheader={ts}
+          subheader={connected ? ts : camPhotoServer}
         />
         { this._getCardMedia() }
         <CardContent>
@@ -206,11 +211,13 @@ class ImageViewer extends Component {
 
   _getCardMedia() {
     const { classes } = this.props;
-    const {loading, image} = this.state;
+    const {image, connected} = this.state;
 
-    if(!image) {
+    if(!connected) return <Fragment />
+
+    if(!image && connected) {
       return  <CardContent>
-        <Typography component="p">Click on Camera icon to capture the photo</Typography>
+        <Typography component="p">Click on Shutter icon to capture the photo</Typography>
       </CardContent>;
     }
 
@@ -220,16 +227,15 @@ class ImageViewer extends Component {
       src={image}
       title="preview"
     />;
-    /*
-    <CardContent>
-      <Typography component="p"> Canceled </Typography>
-    </CardContent>;
-    */
   }
 
   _getCardContent() {
-    const {status} = this.state;
-    return 'success' === status ? <Typography component="p">About this photo</Typography> : <Fragment />;
+    const {camPhotoServer, connected, image} = this.state;
+
+    if(!camPhotoServer) return <div>Please set the photo camera server in 'Settings' tab.</div>;
+    if(camPhotoServer && !connected) return <div>Please confirm the photo camera server is online</div>;
+
+    return image ? <Typography component="p">About this photo</Typography> : <Fragment />;
   }
 }
 

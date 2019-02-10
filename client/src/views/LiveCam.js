@@ -26,9 +26,6 @@ const styles = theme => ({
     flexGrow: 1,
     display: 'flex',
   },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-  },
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
@@ -46,50 +43,53 @@ const styles = theme => ({
   },
 });
 
-function ClippedDrawer(props) {
-  const { classes } = props;
+class LiveCam extends React.Component {
 
-  return (
-    <div className={classes.root}>
-      <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
-        <div className={classes.toolbar} />
-        <List>
-          <ListItem button component={Link} to="/livecam/photo" >
-            <ListItemIcon><PhotoCameraIcon /></ListItemIcon>
-            <ListItemText primary={"Photo"} />
-          </ListItem>
-          <ListItem button component={Link} to="/livecam/video" >
-            <ListItemIcon><VideocamIcon /></ListItemIcon>
-            <ListItemText primary={"Video"} />
-          </ListItem>
-        </List>
-        <Divider />
-        <List>
+  render() {
+    const { classes } = this.props;
+
+    return (
+      <div className={classes.root}>
+        <Drawer
+          className={classes.drawer}
+          variant="permanent"
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+        >
+          <div className={classes.toolbar} />
+          <List>
+            <ListItem button component={Link} to="/livecam/photo" >
+              <ListItemIcon><PhotoCameraIcon /></ListItemIcon>
+              <ListItemText primary={"Photo"} />
+            </ListItem>
+            <ListItem button component={Link} to="/livecam/video" >
+              <ListItemIcon><VideocamIcon /></ListItemIcon>
+              <ListItemText primary={"Video"} />
+            </ListItem>
+          </List>
+          <Divider />
+          <List>
             <ListItem button>
               <ListItemIcon><ImageSearchIcon /></ListItemIcon>
               <ListItemText primary={"Misc"} />
             </ListItem>
-        </List>
-      </Drawer>
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        <Switch>
-          <Route exact path="/livecam/photo" component={LiveCamPhoto} />
-          <Route exact path="/livecam/video" component={LiveCamVideo} />  
-        </Switch>
-      </main>
-    </div>
-  );
+          </List>
+        </Drawer>
+        <main className={classes.content}>
+          <div className={classes.toolbar} />
+          <Switch>
+            <Route exact path="/livecam/photo" component={LiveCamPhoto} />
+            <Route exact path="/livecam/video" component={LiveCamVideo} />
+          </Switch>
+        </main>
+      </div>
+    );
+  }
 }
 
-ClippedDrawer.propTypes = {
+LiveCam.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(ClippedDrawer);
+export default withStyles(styles)(LiveCam);

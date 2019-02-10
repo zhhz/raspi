@@ -3,6 +3,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
 import ImageViewer from '../components/ImageViewer';
+import { AppContext } from '../contexts/app-context';
 
 const styles = theme => ({
   root: {
@@ -16,9 +17,15 @@ class LiveCamPhoto extends React.Component {
     const {classes} = this.props;
 
     return (
-      <div className={classes.root}>
-        <ImageViewer />
-      </div>
+      <AppContext.Consumer>
+        {
+          ({camPhotoServer}) => (
+            <div className={classes.root}>
+              <ImageViewer camPhotoServer={camPhotoServer} />
+            </div>
+          )
+        }
+      </AppContext.Consumer>
     );
   }
 }
