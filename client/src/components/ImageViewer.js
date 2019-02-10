@@ -119,6 +119,14 @@ class ImageViewer extends Component {
     this.socket.cancelPhoto();
   }
 
+  savePhoto = () => {
+    const fileName = (new Date()).toISOString() + '.jpg';
+    const link = document.createElement("a");
+    link.setAttribute("href", this.state.image);
+    link.setAttribute("download", fileName);
+    link.click();
+  }
+
   render() {
     const { classes } = this.props;
     const { connected, loading, success, serverName, ts } = this.state;
