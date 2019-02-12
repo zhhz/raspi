@@ -98,10 +98,12 @@ function splitImage(buffer, sendCallback) {
 */
 
 const RaspiCam = require("../pi/cam/raspicam");
+const fs = require('fs');
 
+const IMAGE_FILE = 'photo/image.png';
 const camera = new RaspiCam({
   mode: "photo",
-  output: "./photo/image.png",
+  output: IMAGE_FILE,
   encoding: "png",
   timeout: 0 // take the picture immediately
 });
@@ -112,6 +114,12 @@ camera.on("start", function( err, timestamp ){
 
 camera.on("read", function( err, timestamp, filename ){
   console.log("photo image captured with filename: " + filename );
+  fs.readFile(__dirname + '/' + IMAGE_FILE, function(err, buf){
+    // it's possible to embed binary data within arbitrarily-complex objects
+    socket.emit('photo-ready', 'data:image/png;base64,' +  buf.toString('base64'));
+    console.log('image file is initialized');
+    cleanup();
+  });
 });
 
 camera.on("exit", function( timestamp ){
@@ -121,10 +129,16 @@ camera.on("exit", function( timestamp ){
 
 function onTakePhoto(socket) {
   camera.start();
+
+  socket.on('cancel-photo', () => {
+    console.log(' =>  => Client canceled take the photo');
+    cleanup();
+  });
 }
 
-function cleanup(socket) {
+function cleanup() {
   console.log(' =>  => cleanup');
+  camera.stop();
 }
 
 const wsPhotoHandler = {

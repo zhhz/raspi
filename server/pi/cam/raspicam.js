@@ -294,7 +294,6 @@ RaspiCam.prototype.stop = function( ) {
   }
 };
 
-
 /**
  *
  * addChildProcessListeners()
