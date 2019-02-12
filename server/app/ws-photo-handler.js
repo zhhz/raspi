@@ -1,3 +1,4 @@
+/*
 const { spawn } = require('child_process');
 
 let photoClients = new Map();
@@ -21,8 +22,8 @@ function onTakePhoto(socket) {
       console.warn(err);
     });
     raspistill.stdout.on('data', (data) => {
-      // Directly converting the data causes us to send an incomplete image. We have to check for a full image. And then send it.
-      // Since there is more than one image per stdout we delegate the process to a function
+      // Directly converting the data causes us to send an incomplete image. We have to check for a full image.
+      // And then send it. Since there is more than one image per stdout we delegate the process to a function
       let lImg = splitImage(data, img => {
         photoClients.forEach((client) => {
           client.emit('photo-ready', 'data:image/jpg;base64,' + img.toString('base64'));
@@ -94,6 +95,37 @@ function splitImage(buffer, sendCallback) {
   lastBuffer = buffer.slice(lastStartPos - 1);
   return image;
 };
+*/
+
+const RaspiCam = require("../pi/cam/raspicam");
+
+const camera = new RaspiCam({
+  mode: "photo",
+  output: "./photo/image.png",
+  encoding: "png",
+  timeout: 0 // take the picture immediately
+});
+
+camera.on("start", function( err, timestamp ){
+  console.log("photo started at " + timestamp );
+});
+
+camera.on("read", function( err, timestamp, filename ){
+  console.log("photo image captured with filename: " + filename );
+});
+
+camera.on("exit", function( timestamp ){
+  console.log("photo child process has exited at " + timestamp );
+});
+
+
+function onTakePhoto(socket) {
+  camera.start();
+}
+
+function cleanup(socket) {
+  console.log(' =>  => cleanup');
+}
 
 const wsPhotoHandler = {
   onTakePhoto,
