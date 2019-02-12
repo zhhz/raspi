@@ -62,7 +62,7 @@ class Settings extends React.Component {
               id="outlined-name"
               label="Cam Photo Server"
               className={classes.textField}
-              value={camPhotoServer || 'localhost:3000'}
+              value={camPhotoServer || '192.168.1.232:300'}
               onChange={this.handleChange('camPhotoServer', updateContext)}
               margin="normal"
               variant="outlined"

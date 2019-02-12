@@ -18,7 +18,6 @@ import green from '@material-ui/core/colors/green';
 import red from '@material-ui/core/colors/red';
 
 import ShareIcon from '@material-ui/icons/Share';
-
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import StopIcon from '@material-ui/icons/NotInterested';
 import LinkIcon from '@material-ui/icons/Link';
@@ -26,10 +25,13 @@ import LinkOffIcon from '@material-ui/icons/LinkOff';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import SaveIcon from '@material-ui/icons/Save';
 import CameraIcon from '@material-ui/icons/Camera';
+import CompareIcon from '@material-ui/icons/Compare';
+
 
 import Socket from '../utils/socket';
 import DateUtil from '../utils/date-time';
 import ProgressButton from './ProgressButton';
+import ComparePhotoDialog from './ComparePhotoDialog';
 
 const styles = theme => ({
   card: {
@@ -65,8 +67,12 @@ class ImageViewer extends Component {
     super(props);
 
     this.state = {
+      open: false,
       expanded: false,
-      image: null,
+      prevImage: null,
+      currImage: null,
+      count: 0,
+      prevCount: 0,
 
       serverName: 'Not Connected',
       camPhotoServer: props.camPhotoServer,
@@ -86,7 +92,7 @@ class ImageViewer extends Component {
     this.socket = new Socket(this.state.camPhotoServer);
     this.socket.init({
       onConnected: this.onConnected,
-    onPhotoReady: this.onPhotoReady,
+      onPhotoReady: this.onPhotoReady,
     });
   }
 
@@ -98,11 +104,18 @@ class ImageViewer extends Component {
     });
   }
 
-  onPhotoReady = data => {
+  onPhotoReady = image => {
+    const {count, prevCount} = this.state;
+
+    if(count === prevCount) return;
+
+    const prevImage = this.state.currImage ? this.state.currImage : null;
     this.setState({
-      image: data,
+      prevImage,
+      currImage: image,
       loading: false,
       success: true,
+      prevCount: prevCount + 1,
     });
   }
 
@@ -110,6 +123,7 @@ class ImageViewer extends Component {
     this.setState({
       loading: true,
       success: false,
+      count: this.state.count + 1,
     });
 
     this.socket.takePhoto();
@@ -125,117 +139,137 @@ class ImageViewer extends Component {
   }
 
   savePhoto = () => {
-    const fileName = (new Date()).toISOString() + '.jpg';
+    const fileName = (new Date()).toISOString() + '.png';
     const link = document.createElement("a");
-    link.setAttribute("href", this.state.image);
+    link.setAttribute("href", this.state.currImage);
     link.setAttribute("download", fileName);
     link.click();
   }
 
+  comparePhoto = () => {
+    this.setState({open: true});
+  }
+
+  handleClose = () => {
+    this.setState({open: false});
+  }
+
   render() {
     const { classes } = this.props;
-    const { camPhotoServer, connected, loading, success, serverName, ts } = this.state;
+    const { camPhotoServer, connected, loading, success, serverName, ts, prevImage } = this.state;
 
     return (
-      <Card className={classes.card}>
-        <CardHeader
-          avatar={
-            <Avatar aria-label="Connected" className={connected ? classes.avatarLink : classes.avatarLinkOff}>
-              {connected ? <LinkIcon /> : <LinkOffIcon />}
-            </Avatar>
-          }
-          action={
-            <Toolbar>
-              <ProgressButton
-                handleClick={this.takePhoto}
-                icon={CameraIcon}
-                loading={loading}
-                success={success}
-                disabled={!connected}
-              />
-              <IconButton onClick={this.cancelPhoto} disabled={!loading}>
-                <StopIcon />
-              </IconButton>
-              <IconButton onClick={this.savePhoto} disabled={!success}>
-                <SaveIcon />
-              </IconButton>
-            </Toolbar>
-          }
-          title={serverName}
-          subheader={connected ? ts : camPhotoServer}
+      <Fragment>
+        <ComparePhotoDialog
+          open={this.state.open}
+          onClose={this.handleClose}
+          prevImage={this.state.prevImage}
+          currImage={this.state.currImage}
         />
-        { this._getCardMedia() }
-        <CardContent>
-          { this._getCardContent() }
-        </CardContent>
-        <CardActions className={classes.actions} disableActionSpacing>
-          <IconButton aria-label="Add to favorites">
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton aria-label="Share">
-            <ShareIcon />
-          </IconButton>
-          <IconButton
-            className={classnames(classes.expand, {
-              [classes.expandOpen]: this.state.expanded,
-            })}
-            onClick={this.handleExpandClick}
-            aria-expanded={this.state.expanded}
-            aria-label="Show more"
-          >
-            <ExpandMoreIcon />
-          </IconButton>
-        </CardActions>
-        <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+
+        <Card className={classes.card} id="my-card">
+          <CardHeader
+            avatar={
+              <Avatar aria-label="Connected" className={connected ? classes.avatarLink : classes.avatarLinkOff}>
+                {connected ? <LinkIcon /> : <LinkOffIcon />}
+              </Avatar>
+            }
+            action={
+              <Toolbar>
+                <ProgressButton
+                  handleClick={this.takePhoto}
+                  icon={CameraIcon}
+                  loading={loading}
+                  success={success}
+                  disabled={!connected}
+                />
+                <IconButton onClick={this.cancelPhoto} disabled={!loading}>
+                  <StopIcon />
+                </IconButton>
+                <IconButton onClick={this.savePhoto} disabled={!success}>
+                  <SaveIcon />
+                </IconButton>
+                <IconButton onClick={this.comparePhoto} disabled={!prevImage}>
+                  <CompareIcon />
+                </IconButton>
+              </Toolbar>
+            }
+            title={serverName}
+            subheader={connected ? ts : camPhotoServer}
+          />
+          { this._getCardMedia() }
           <CardContent>
-            <Typography paragraph>Method:</Typography>
-            <Typography paragraph>
-              Heat 1/2 cup of the broth in a pot until simmering, add saffron and set aside for 10
-              minutes.
-            </Typography>
-            <Typography paragraph>
-              Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over medium-high
-              heat. Add chicken, shrimp and chorizo, and cook, stirring occasionally until lightly
-            </Typography>
-            <Typography paragraph>
-              Add rice and stir very gently to distribute. Top with artichokes and peppers, and cook
-            </Typography>
-            <Typography>
-              Set aside off of the heat to let rest for 10 minutes, and then serve.
-            </Typography>
+            { this._getCardContent() }
           </CardContent>
-        </Collapse>
-      </Card>
+          <CardActions className={classes.actions} disableActionSpacing>
+            <IconButton aria-label="Add to favorites">
+              <FavoriteIcon />
+            </IconButton>
+            <IconButton aria-label="Share">
+              <ShareIcon />
+            </IconButton>
+            <IconButton
+              className={classnames(classes.expand, {
+                [classes.expandOpen]: this.state.expanded,
+              })}
+              onClick={this.handleExpandClick}
+              aria-expanded={this.state.expanded}
+              aria-label="Show more"
+            >
+              <ExpandMoreIcon />
+            </IconButton>
+          </CardActions>
+          <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+            <CardContent>
+              <Typography paragraph>Method:</Typography>
+              <Typography paragraph>
+                Heat 1/2 cup of the broth in a pot until simmering, add saffron and set aside for 10
+                minutes.
+              </Typography>
+              <Typography paragraph>
+                Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over medium-high
+                heat. Add chicken, shrimp and chorizo, and cook, stirring occasionally until lightly
+              </Typography>
+              <Typography paragraph>
+                Add rice and stir very gently to distribute. Top with artichokes and peppers, and cook
+              </Typography>
+              <Typography>
+                Set aside off of the heat to let rest for 10 minutes, and then serve.
+              </Typography>
+            </CardContent>
+          </Collapse>
+        </Card>
+      </Fragment>
     );
   }
 
   _getCardMedia() {
     const { classes } = this.props;
-    const {image, connected} = this.state;
+    const {currImage, connected} = this.state;
 
     if(!connected) return <Fragment />
 
-    if(!image && connected) {
-      return  <CardContent>
-        <Typography component="p">Click on Shutter icon to capture the photo</Typography>
-      </CardContent>;
-    }
+      if(!currImage && connected) {
+        return  <CardContent>
+          <Typography component="p">Click on Shutter icon to capture the photo</Typography>
+        </CardContent>;
+      }
 
     return  <CardMedia
       className={classes.media}
       component='img'
-      src={image}
+      src={currImage}
       title="preview"
     />;
   }
 
   _getCardContent() {
-    const {camPhotoServer, connected, image} = this.state;
+    const {camPhotoServer, connected, currImage} = this.state;
 
     if(!camPhotoServer) return <div>Please set the photo camera server in 'Settings' tab.</div>;
     if(camPhotoServer && !connected) return <div>Please confirm the photo camera server is online</div>;
 
-    return image ? <Typography component="p">About this photo</Typography> : <Fragment />;
+    return currImage ? <Typography component="p">About this photo</Typography> : <Fragment />;
   }
 }
 

@@ -116,11 +116,9 @@ camera.on("start", function( err, timestamp ){
 });
 
 camera.on("read", function( err, timestamp, filename ){
-  console.log("photo image captured with filename: " + filename );
-  fs.readFile(__dirname + '/' + IMAGE_FILE, function(err, buf){
+  fs.readFile(IMAGE_FILE, function(err, buf){
     // it's possible to embed binary data within arbitrarily-complex objects
     _socket.emit('photo-ready', 'data:image/png;base64,' +  buf.toString('base64'));
-    console.log('image file is initialized');
     cleanup();
   });
 });
@@ -135,7 +133,6 @@ function onTakePhoto(socket) {
   camera.start();
 
   _socket.on('cancel-photo', () => {
-    console.log(' =>  => Client canceled take the photo');
     cleanup();
   });
 }
