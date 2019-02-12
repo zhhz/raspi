@@ -101,6 +101,9 @@ const RaspiCam = require("../pi/cam/raspicam");
 const fs = require('fs');
 
 const IMAGE_FILE = 'photo/image.png';
+
+let _socket;
+
 const camera = new RaspiCam({
   mode: "photo",
   output: IMAGE_FILE,
@@ -116,7 +119,7 @@ camera.on("read", function( err, timestamp, filename ){
   console.log("photo image captured with filename: " + filename );
   fs.readFile(__dirname + '/' + IMAGE_FILE, function(err, buf){
     // it's possible to embed binary data within arbitrarily-complex objects
-    socket.emit('photo-ready', 'data:image/png;base64,' +  buf.toString('base64'));
+    _socket.emit('photo-ready', 'data:image/png;base64,' +  buf.toString('base64'));
     console.log('image file is initialized');
     cleanup();
   });
@@ -128,9 +131,10 @@ camera.on("exit", function( timestamp ){
 
 
 function onTakePhoto(socket) {
+  _socket = socket;
   camera.start();
 
-  socket.on('cancel-photo', () => {
+  _socket.on('cancel-photo', () => {
     console.log(' =>  => Client canceled take the photo');
     cleanup();
   });
