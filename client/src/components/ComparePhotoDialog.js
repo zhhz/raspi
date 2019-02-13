@@ -36,27 +36,30 @@ const styles = theme => ({
   },
 });
 
-let height = 640;
-let  width  = 480;
-class ScrollDialog extends React.Component {
-  state = {
-    scroll: 'paper', //[paper | body]
-  };
+class ComparePhotoDialog extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      scroll: 'paper', //[paper | body]
+    };
+  }
 
   handleClose = () => {
     this.props.onClose();
   };
 
   comparePhoto = () => {
-    const {prevImage, currImage} = this.props;
+    const {prevImage, currImage, width, height} = this.props;
 
-    let img1 = this.tmpCanvas(prevImage).getImageData(0, 0, height, width);
-    let img2 = this.tmpCanvas(currImage).getImageData(0, 0, height, width);
+    let img1 = this.tmpCanvas(prevImage).getImageData(0, 0, width, height);
+    let img2 = this.tmpCanvas(currImage).getImageData(0, 0, width, height);
 
     const diffCtx = this.canvasCtx();
-    const diff = diffCtx.createImageData(height, width);
+    const diff = diffCtx.createImageData(width, height);
 
-    pixelmatch(img1.data, img2.data, diff.data, height, width, {threshold: 0.1});
+    pixelmatch(img1.data, img2.data, diff.data, width, height, {threshold: 0.1});
     diffCtx.putImageData(diff, 0, 0);
   }
 
@@ -71,11 +74,14 @@ class ScrollDialog extends React.Component {
   }
 
   render() {
+    const {width} = this.props;
+
     return (
       <Dialog
         open={this.props.open}
         onClose={this.handleClose}
         scroll={this.state.scroll}
+        maxWidth={width >= 1024 ? 'xl' : 'lg'}
         aria-labelledby="scroll-dialog-title"
       >
         <DialogTitle id="scroll-dialog-title">Diff</DialogTitle>
@@ -128,9 +134,11 @@ class ScrollDialog extends React.Component {
   }
 
   tmpCanvas = buffer => {
+    const {width, height} = this.props;
+
     var canvas = document.createElement('canvas');
-    canvas.width  = height;
-    canvas.height = width;
+    canvas.width  = width;
+    canvas.height = height;
 
     var ctx = canvas.getContext('2d');
 
@@ -142,12 +150,14 @@ class ScrollDialog extends React.Component {
   }
 
   canvasCtx = () => {
+    const {width, height} = this.props;
+
     var canvas = document.createElement('canvas');
     canvas.id     = "CursorLayer";
-    canvas.width  = height;
-    canvas.height = width;
+    canvas.width  = width;
+    canvas.height = height;
     canvas.style.zIndex      = 8;
-    // canvas.style.position    = "absolute";
+    // canvas.style.position = "absolute";
     canvas.style.border      = "5px solid";
     canvas.style.borderColor = "green";
 
@@ -160,4 +170,4 @@ class ScrollDialog extends React.Component {
 
 }
 
-export default withStyles(styles)(ScrollDialog);
+export default withStyles(styles)(ComparePhotoDialog);

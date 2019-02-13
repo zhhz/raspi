@@ -6,9 +6,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { AppContext } from '../contexts/app-context';
 import CamPhotoSettingCard from '../components/CamPhotoSettingCard';
 import CamVideoSettingCard from '../components/CamVideoSettingCard';
-import storageFactory from '../utils/storage-factory';
-
-const localStore = storageFactory();
 
 const styles = theme => ({
   root: {
@@ -33,17 +30,19 @@ class Settings extends React.Component {
     );
   }
 
-  _renderContent({camPhotoServer, camVideoServer, updateContext}) {
+  _renderContent({camPhotoServer, camVideoServer, camPhotoWidth, camPhotoHeight, updateContext}) {
     const { classes } = this.props;
 
     return (
       <div className={classes.root}>
         <CamPhotoSettingCard
-          camPhotoServer={camPhotoServer || localStore.getItem('camPhotoServer')}
+          camPhotoServer={camPhotoServer}
+          camPhotoWidth={camPhotoWidth}
+          camPhotoHeight={camPhotoHeight}
           updateContext={updateContext}
         />
         <CamVideoSettingCard
-          camVideoServer={camVideoServer || localStore.getItem('camVideoServer')}
+          camVideoServer={camVideoServer}
           updateContext={updateContext}
         />
     </div>

@@ -78,7 +78,9 @@ class ImageViewer extends Component {
       prevCount: 0,
 
       serverName: 'Not Connected',
-      camPhotoServer: props.camPhotoServer || localStore.getItem('camPhotoServer'),
+      camPhotoServer: props.camPhotoServer,
+      camPhotoWidth: props.camPhotoWidth,
+      camPhotoHeight: props.camPhotoHeight,
       connected: false,
       loading: false,
       success: false,
@@ -93,8 +95,6 @@ class ImageViewer extends Component {
     if(!this.state.camPhotoServer) return;
 
     this.socket = new Socket(this.state.camPhotoServer);
-    // save to local store
-    localStore.setItem('camPhotoServer', this.state.camPhotoServer);
     this.socket.init({
       onConnected: this.onConnected,
       onPhotoReady: this.onPhotoReady,
@@ -123,7 +123,7 @@ class ImageViewer extends Component {
       prevCount: prevCount + 1,
     });
 
-    localStore.setItem('prevImage', prevImage);
+    localStore.setItem('prevImage', prevImage || '');
     localStore.setItem('currImage', image);
   }
 
@@ -134,7 +134,8 @@ class ImageViewer extends Component {
       count: this.state.count + 1,
     });
 
-    this.socket.takePhoto({w: 640, h: 480});
+    const {camPhotoWidth, camPhotoHeight} = this.state;
+    this.socket.takePhoto({w: camPhotoWidth, h: camPhotoHeight});
   }
 
   cancelPhoto = () => {
@@ -173,6 +174,8 @@ class ImageViewer extends Component {
           onClose={this.handleClose}
           prevImage={this.state.prevImage}
           currImage={this.state.currImage}
+          width={this.state.camPhotoWidth}
+          height={this.state.camPhotoHeight}
         />
 
         <Card className={classes.card}>

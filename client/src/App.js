@@ -9,7 +9,9 @@ import Home from './views/Home';
 import LiveCam from './views/LiveCam';
 import Settings from './views/Settings';
 import { AppContext } from './contexts/app-context';
+import storageFactory from './utils/storage-factory';
 
+const localStore = storageFactory();
 
 const styles = theme => ({
   root: {
@@ -25,12 +27,18 @@ class App extends Component {
       this.setState({
         [name]: value,
       })
+      // save to local store
+      localStore.setItem(name, value);
     }
 
     this.state = {
       updateContext:  this.updateContext,
-      camPhotoServer: null,
-      camVideoServer: null,
+
+      camPhotoServer: localStore.getItem('camPhotoServer') || 'localhost:3000',
+      camPhotoWidth:  localStore.getItem('camPhotoWidth') || 640,
+      camPhotoHeight: localStore.getItem('camPhotoHeight') || 480,
+
+      camVideoServer: localStore.getItem('camVideoServer') || 'localhost:3000',
     }
   }
 

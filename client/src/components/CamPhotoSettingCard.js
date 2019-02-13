@@ -60,7 +60,7 @@ const styles = theme => ({
 
 const CamPhotoLink = props => <Link to="/livecam/photo" {...props} />;
 
-class RecipeReviewCard extends React.Component {
+class CamPhotoSettingCard extends React.Component {
 
   handleChange = (name, updateContext) => event => {
     const value = event.target.value;
@@ -68,7 +68,13 @@ class RecipeReviewCard extends React.Component {
   };
 
   render() {
-    const { classes, camPhotoServer, updateContext } = this.props;
+    const {
+      classes,
+      camPhotoServer,
+      camPhotoWidth,
+      camPhotoHeight,
+      updateContext
+    } = this.props;
 
     return (
       <Card className={classes.card}>
@@ -96,6 +102,33 @@ class RecipeReviewCard extends React.Component {
                 value={camPhotoServer}
                 onChange={this.handleChange('camPhotoServer', updateContext)}
                 margin="normal"
+                placeholder='localhost:3000'
+                variant="outlined"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+              <TextField
+                id="outlined-name"
+                label="Photo Width"
+                className={classes.textField}
+                value={camPhotoWidth}
+                onChange={this.handleChange('camPhotoWidth', updateContext)}
+                margin="normal"
+                variant="outlined"
+                placeholder="640"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+              <TextField
+                id="outlined-name"
+                label="Photo Height"
+                className={classes.textField}
+                value={camPhotoHeight}
+                onChange={this.handleChange('camPhotoHeight', updateContext)}
+                margin="normal"
+                placeholder="480"
                 variant="outlined"
                 InputLabelProps={{
                   shrink: true,
@@ -119,8 +152,8 @@ class RecipeReviewCard extends React.Component {
   }
 }
 
-RecipeReviewCard.propTypes = {
+CamPhotoSettingCard.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(RecipeReviewCard);
+export default withStyles(styles)(CamPhotoSettingCard);

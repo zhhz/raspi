@@ -19,9 +19,9 @@ class LiveCamPhoto extends React.Component {
     return (
       <AppContext.Consumer>
         {
-          ({camPhotoServer}) => (
+          state => (
             <div className={classes.root}>
-              <ImageViewer camPhotoServer={camPhotoServer} />
+              <ImageViewer {...state} />
             </div>
           )
         }
