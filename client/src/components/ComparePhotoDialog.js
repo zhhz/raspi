@@ -7,7 +7,6 @@ import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -15,14 +14,15 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Avatar from '@material-ui/core/Avatar';
 import Toolbar from '@material-ui/core/Toolbar';
 import green from '@material-ui/core/colors/green';
-import CameraIcon from '@material-ui/icons/Camera';
 import LinkIcon from '@material-ui/icons/Link';
-
-import ProgressButton from './ProgressButton';
+import IconButton from '@material-ui/core/IconButton';
+import SaveIcon from '@material-ui/icons/Save';
+import CompareIcon from '@material-ui/icons/Compare';
 
 const styles = theme => ({
   card: {
     width: "100%",
+    marginTop: 20,
   },
   media: {
     // height: 0,
@@ -36,6 +36,8 @@ const styles = theme => ({
   },
 });
 
+let height = 640;
+let  width  = 480;
 class ScrollDialog extends React.Component {
   state = {
     scroll: 'paper', //[paper | body]
@@ -46,16 +48,26 @@ class ScrollDialog extends React.Component {
   };
 
   comparePhoto = () => {
-    const {prevImage, image} = this.state;
+    const {prevImage, currImage} = this.props;
 
-    let img1 = this.tmpCanvas(prevImage).getImageData(0, 0, 640, 480);
-    let img2 = this.tmpCanvas(image).getImageData(0, 0, 640, 480);
+    let img1 = this.tmpCanvas(prevImage).getImageData(0, 0, height, width);
+    let img2 = this.tmpCanvas(currImage).getImageData(0, 0, height, width);
 
     const diffCtx = this.canvasCtx();
-    const diff = diffCtx.createImageData(640, 480);
+    const diff = diffCtx.createImageData(height, width);
 
-    pixelmatch(img1.data, img2.data, diff.data, 640, 480, {threshold: 0.1});
+    pixelmatch(img1.data, img2.data, diff.data, height, width, {threshold: 0.1});
     diffCtx.putImageData(diff, 0, 0);
+  }
+
+  savePhoto = img => {
+    return () => {
+      const fileName = (new Date()).toISOString() + '.png';
+      const link = document.createElement("a");
+      link.setAttribute("href", img);
+      link.setAttribute("download", fileName);
+      link.click();
+    };
   }
 
   render() {
@@ -66,12 +78,14 @@ class ScrollDialog extends React.Component {
         scroll={this.state.scroll}
         aria-labelledby="scroll-dialog-title"
       >
-        <DialogTitle id="scroll-dialog-title">Subscribe</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">Diff</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {this._renderCard(this.props.currImage)}
-            {this._renderCard(this.props.prevImage)}
-          </DialogContentText>
+          <IconButton onClick={this.comparePhoto}>
+            <CompareIcon />
+          </IconButton>
+          <div id="my-card"></div>
+          {this._renderCard(this.props.currImage)}
+          {this._renderCard(this.props.prevImage)}
         </DialogContent>
         <DialogActions>
           <Button onClick={this.handleClose} color="primary">
@@ -89,16 +103,15 @@ class ScrollDialog extends React.Component {
       <Card className={classes.card}>
         <CardHeader
           avatar={
-            <Avatar aria-label="Connected" className={classes.avatarLink}>
+            <Avatar className={classes.avatarLink}>
               <LinkIcon />
             </Avatar>
           }
           action={
             <Toolbar>
-              <ProgressButton
-                handleClick={this.comparePhoto}
-                icon={CameraIcon}
-              />
+              <IconButton onClick={this.savePhoto(image)}>
+                <SaveIcon />
+              </IconButton>
             </Toolbar>
           }
           title="Compare Photo"
@@ -116,8 +129,8 @@ class ScrollDialog extends React.Component {
 
   tmpCanvas = buffer => {
     var canvas = document.createElement('canvas');
-    canvas.width  = 640;
-    canvas.height = 480;
+    canvas.width  = height;
+    canvas.height = width;
 
     var ctx = canvas.getContext('2d');
 
@@ -125,17 +138,14 @@ class ScrollDialog extends React.Component {
     img.src = buffer;
     ctx.drawImage(img, 0, 0);
 
-    var body = document.getElementById('my-card');
-    body.appendChild(canvas);
-
     return ctx;
   }
 
   canvasCtx = () => {
     var canvas = document.createElement('canvas');
     canvas.id     = "CursorLayer";
-    canvas.width  = 640;
-    canvas.height = 480;
+    canvas.width  = height;
+    canvas.height = width;
     canvas.style.zIndex      = 8;
     // canvas.style.position    = "absolute";
     canvas.style.border      = "5px solid";

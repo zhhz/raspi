@@ -32,6 +32,9 @@ import Socket from '../utils/socket';
 import DateUtil from '../utils/date-time';
 import ProgressButton from './ProgressButton';
 import ComparePhotoDialog from './ComparePhotoDialog';
+import storageFactory from '../utils/storage-factory';
+
+const localStore = storageFactory();
 
 const styles = theme => ({
   card: {
@@ -69,13 +72,13 @@ class ImageViewer extends Component {
     this.state = {
       open: false,
       expanded: false,
-      prevImage: null,
-      currImage: null,
+      prevImage: localStore.getItem('prevImage'),
+      currImage: localStore.getItem('currImage'),
       count: 0,
       prevCount: 0,
 
       serverName: 'Not Connected',
-      camPhotoServer: props.camPhotoServer,
+      camPhotoServer: props.camPhotoServer || localStore.getItem('camPhotoServer'),
       connected: false,
       loading: false,
       success: false,
@@ -90,6 +93,8 @@ class ImageViewer extends Component {
     if(!this.state.camPhotoServer) return;
 
     this.socket = new Socket(this.state.camPhotoServer);
+    // save to local store
+    localStore.setItem('camPhotoServer', this.state.camPhotoServer);
     this.socket.init({
       onConnected: this.onConnected,
       onPhotoReady: this.onPhotoReady,
@@ -117,6 +122,9 @@ class ImageViewer extends Component {
       success: true,
       prevCount: prevCount + 1,
     });
+
+    localStore.setItem('prevImage', prevImage);
+    localStore.setItem('currImage', image);
   }
 
   takePhoto = () => {
@@ -167,7 +175,7 @@ class ImageViewer extends Component {
           currImage={this.state.currImage}
         />
 
-        <Card className={classes.card} id="my-card">
+        <Card className={classes.card}>
           <CardHeader
             avatar={
               <Avatar aria-label="Connected" className={connected ? classes.avatarLink : classes.avatarLinkOff}>
