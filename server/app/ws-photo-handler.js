@@ -102,39 +102,40 @@ const fs = require('fs');
 
 const IMAGE_FILE = 'photo/image.png';
 
-let _socket;
-
-const camera = new RaspiCam({
+const DEFAULT_OPTS = {
   mode: "photo",
   output: IMAGE_FILE,
   encoding: "png",
   timeout: 0 // take the picture immediately
-});
+};
 
-camera.on("start", function( err, timestamp ){
-  console.log("photo started at " + timestamp );
-});
 
-camera.on("read", function( err, timestamp, filename ){
-  fs.readFile(IMAGE_FILE, function(err, buf){
-    // it's possible to embed binary data within arbitrarily-complex objects
-    _socket.emit('photo-ready', 'data:image/png;base64,' +  buf.toString('base64'));
+function onTakePhoto(socket, opts) {
+  console.log(' =>  => opts: ', opts);
+
+  socket.on('cancel-photo', () => {
     cleanup();
   });
-});
 
-camera.on("exit", function( timestamp ){
-  console.log("photo child process has exited at " + timestamp );
-});
+  opts = Object.assign({}, opts, DEFAULT_OPTS);
+  const camera = new RaspiCam(opts);
 
+  camera.on("start", function( err, timestamp ){
+    console.log("photo started at " + timestamp );
+  });
 
-function onTakePhoto(socket) {
-  _socket = socket;
+  camera.on("read", function( err, timestamp, filename ){
+    fs.readFile(IMAGE_FILE, function(err, buf){
+      socket.emit('photo-ready', 'data:image/png;base64,' +  buf.toString('base64'));
+      cleanup();
+    });
+  });
+
+  camera.on("exit", function( timestamp ){
+    console.log("photo child process has exited at " + timestamp );
+  });
+
   camera.start();
-
-  _socket.on('cancel-photo', () => {
-    cleanup();
-  });
 }
 
 function cleanup() {

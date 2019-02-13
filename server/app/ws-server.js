@@ -20,7 +20,7 @@ socket.on('connection', sock => {
     wsPhotoHandler.cleanup(sock);
   });
 
-  sock.on('take-photo', () => wsPhotoHandler.onTakePhoto(sock));
+  sock.on('take-photo', opts => wsPhotoHandler.onTakePhoto(sock, opts));
 
 });
 

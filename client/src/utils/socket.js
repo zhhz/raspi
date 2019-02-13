@@ -15,8 +15,8 @@ class Socket {
     this.socket.on('photo-ready', opts.onPhotoReady);
   }
 
-  takePhoto() {
-    this.socket.emit('take-photo');
+  takePhoto(opts) {
+    this.socket.emit('take-photo', opts);
   }
 
   cancelPhoto() {

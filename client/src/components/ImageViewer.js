@@ -134,7 +134,7 @@ class ImageViewer extends Component {
       count: this.state.count + 1,
     });
 
-    this.socket.takePhoto();
+    this.socket.takePhoto({w: 640, h: 480});
   }
 
   cancelPhoto = () => {
