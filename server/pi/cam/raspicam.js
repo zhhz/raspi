@@ -229,8 +229,8 @@ RaspiCam.prototype.start = function( ) {
 
   var cmd;
 
+  let opts = {};
   switch(this.args.mode){
-    let opts = {};
     case 'photo':
       this.watchDirectory();
       cmd = PHOTO_CMD;
