@@ -38,36 +38,36 @@ process.on('exit', function() {
  *
  * @description Raspberry Pi camera controller object
  *
- * @param {Object} opts Options: mode, freq, delay, width, height, quality, encoding, filepath, filename, timeout
+ * @param {Object} args Options: mode, freq, delay, width, height, quality, encoding, filepath, filename, timeout
  */
-function RaspiCam( opts ) {
+function RaspiCam( args ) {
 
   if ( !(this instanceof RaspiCam) ) {
-    return new RaspiCam( opts );
+    return new RaspiCam( args );
   }
 
-  // Ensure opts is an object
-  opts = opts || {};
+  // Ensure args is an object
+  args = args || {};
 
-  if(typeof opts.mode === "undefined" || typeof opts.output === "undefined"){
+  if(typeof args.mode === "undefined" || typeof args.output === "undefined"){
     console.log("Error: RaspiCam: must define mode and output");
     return false;
   }
 
   // Initialize this Board instance with
   // param specified properties.
-  this.opts = {};
-  _.assign( this.opts, opts );
+  this.args = {};
+  _.assign( this.args, args );
 
-  // If any opts use the abbreviation, convert to
-  // the full word (eg. from opts.w to opts.width)
-  this.hashOpts( opts );
+  // If any args use the abbreviation, convert to
+  // the full word (eg. from args.w to args.width)
+  this.hashArgs( args );
 
-  // Set up opts defaults
-  this.defaultOpts( );
+  // Set up args defaults
+  this.defaultArgs( );
 
-  // Create derivative opts
-  this.derivativeOpts( );
+  // Create derivative args
+  this.derivativeArgs( );
 
   // If this.filepath doesn't exist, make it
   this.createFilepath( );
@@ -86,30 +86,30 @@ util.inherits( RaspiCam, events.EventEmitter );
 
 /**
  *
- * hashOpts()
+ * hashArgs()
  *
  * Converts any abbreviated opts to their full word equivalent
  * and assigns to this.
  *
  **/
-RaspiCam.prototype.hashOpts = function(opts){
-  for(var opt in opts){
+RaspiCam.prototype.hashArgs = function(args){
+  for(var opt in args){
     if(opt.length <= 3){
 
       // if this opt is in the parameters hash
       if(typeof parameters[opt] !== "undefined"){
 
         // reassign it to the full word
-        this.opts[parameters[opt]] = opts[opt];
-        delete this.opts[opt];
+        this.args[parameters[opt]] = args[opt];
+        delete this.args[opt];
       }
 
       // if this opt is in the flags hash
       if(typeof flags[opt] !== "undefined"){
 
         // reassign it to the full word
-        this.opts[flags[opt]] = opts[opt];
-        delete this.opts[opt];
+        this.args[flags[opt]] = args[opt];
+        delete this.args[opt];
       }
     }
   }
@@ -118,25 +118,25 @@ RaspiCam.prototype.hashOpts = function(opts){
 
 /**
  *
- * defaultOpts()
+ * defaultArgs()
  *
- * Parses the opts to set defaults.
+ * Parses the args to set defaults.
  *
  **/
-RaspiCam.prototype.defaultOpts = function(){
+RaspiCam.prototype.defaultArgs = function(){
 
-  this.opts.mode = this.opts.mode || 'photo';//photo, timelapse or video
+  this.args.mode = this.args.mode || 'photo';//photo, timelapse or video
 
-  this.opts.width = this.opts.width || 640;
-  this.opts.height = this.opts.height || 480;
+  this.args.width = this.args.width || 640;
+  this.args.height = this.args.height || 480;
 
-  this.opts.log = typeof this.opts.log === 'function' ? this.opts.log : console.log;
+  this.args.log = typeof this.args.log === 'function' ? this.args.log : console.log;
 
   // Limit timeout to the maximum value
   // supported by the Raspberry Pi camera,
   // determined by testing.
-  if(typeof this.opts.timeout !== "undefined"){
-    this.opts.timeout = Math.min( this.opts.timeout, INFINITY_MS );
+  if(typeof this.args.timeout !== "undefined"){
+    this.args.timeout = Math.min( this.args.timeout, INFINITY_MS );
   }
 
 };
@@ -144,16 +144,16 @@ RaspiCam.prototype.defaultOpts = function(){
 
 /**
  *
- * derivativeOpts()
+ * derivativeArgs()
  *
- * Create any derivative opts, such as filepath and filename
+ * Create any derivative args, such as filepath and filename
  *
  **/
-RaspiCam.prototype.derivativeOpts = function(){
+RaspiCam.prototype.derivativeArgs = function(){
 
-  this.filename = this.opts.output.substr( this.opts.output.lastIndexOf("/") + 1 );
+  this.filename = this.args.output.substr( this.args.output.lastIndexOf("/") + 1 );
 
-  this.filepath = this.opts.output.substr(0, this.opts.output.lastIndexOf("/") + 1 ) || "./";
+  this.filepath = this.args.output.substr(0, this.args.output.lastIndexOf("/") + 1 ) || "./";
 };
 
 
@@ -189,14 +189,14 @@ RaspiCam.prototype.watchDirectory = function( ) {
   this.watcher = fs.watch(this.filepath, function(event, filename){
     //rename is called once, change is called 3 times, so check for rename to elimate duplicates
     if(event === "rename"){
-      self.opts.log('raspicam::watcher::event ' + event);
+      self.args.log('raspicam::watcher::event ' + event);
 
       // only emit read event if it is not a temporary file
       if (filename.indexOf('~') === -1) {
         self.emit( "read", null, new Date().getTime(), filename );
       }
     }else{
-      self.opts.log('raspicam::watcher::event ' + event);
+      self.args.log('raspicam::watcher::event ' + event);
       self.emit( event, null, new Date().getTime(), filename );
     }
   });
@@ -213,42 +213,44 @@ RaspiCam.prototype.start = function( ) {
     return false;
   }
 
-  this.watchDirectory();
 
   // build the arguments
   var args = [];
 
-  for(var opt in this.opts){
+  for(var opt in this.args){
     if(opt !== "mode" && opt !== "log"){
       args.push("--" + opt);
       //don't add value for true flags
-      if( this.opts[opt].toString() !== "true" && this.opts[opt].toString() !== "false"){
-        args.push(this.opts[opt].toString());
+      if( this.args[opt].toString() !== "true" && this.args[opt].toString() !== "false"){
+        args.push(this.args[opt].toString());
       }
     }
   }
 
   var cmd;
 
-  switch(this.opts.mode){
+  switch(this.args.mode){
+    let opts = {};
     case 'photo':
+      this.watchDirectory();
       cmd = PHOTO_CMD;
       break;
     case 'timelapse':
       cmd = TIMELAPSE_CMD;
 
       // if no timelapse frequency provided, return false
-      if(typeof this.opts.timelapse === "undefined"){
+      if(typeof this.args.timelapse === "undefined"){
         this.emit("start", "Error: must specify timelapse frequency option", new Date().getTime() );
         return false;
       }
       // if not timeout provided, set to longest possible
-      if(typeof this.opts.timeout === "undefined"){
-        this.opts.timeout = INFINITY_MS;
+      if(typeof this.args.timeout === "undefined"){
+        this.args.timeout = INFINITY_MS;
       }
       break;
     case 'video':
       cmd = VIDEO_CMD;
+      opts = { stdio: ['ignore', 'pipe', 'inherit'] };
       break;
     default:
       this.emit("start", "Error: mode must be photo, timelapse or video", new Date().getTime() );
@@ -256,9 +258,9 @@ RaspiCam.prototype.start = function( ) {
   }
 
   //start child process
-  this.opts.log('calling....');
-  this.opts.log(cmd + ' ' + args.join(" "));
-  this.child_process = spawn(cmd, args);
+  this.args.log('calling....');
+  this.args.log(cmd + ' ' + args.join(" "));
+  this.child_process = spawn(cmd, args, opts);
   child_process = this.child_process;
   PROCESS_RUNNING_FLAG = true;
 
@@ -267,9 +269,7 @@ RaspiCam.prototype.start = function( ) {
 
   this.emit("start", null, new Date().getTime() );
 
-
   return true;
-
 };
 
 // stop the child process
@@ -307,12 +307,12 @@ RaspiCam.prototype.addChildProcessListeners = function(){
   var dout, derr;
 
   this.child_process.stdout.on('data', function (data) {
-    self.opts.log('stdout: ' + data);
+    self.args.log('stdout: ' + data);
     dout = data;
   });
 
   this.child_process.stderr.on('data', function (data) {
-    self.opts.log('stderr: ' + data);
+    self.args.log('stderr: ' + data);
     derr = data;
   });
 
@@ -333,25 +333,21 @@ RaspiCam.prototype.addChildProcessListeners = function(){
 
 
 /**
- *
  * getter
- *
  **/
 RaspiCam.prototype.get = function(opt){
-  return this.opts[opt];
+  return this.args[opt];
 };
 
 
 /**
- *
  * setter
- *
  **/
 RaspiCam.prototype.set = function(opt, value){
-  this.opts[opt] = value;
+  this.args[opt] = value;
   if(opt === "output"){
     //regenerate filepath, etc, with new output value
-    this.derivativeOpts();
+    this.derivativeArgs();
   }
 };
 
